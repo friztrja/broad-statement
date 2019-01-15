@@ -1,0 +1,122 @@
+#include <Servo.h>
+ 
+int topl = A0;
+int topr = A3;
+int botl = A1;
+int botr = A2;
+int speaker = 10;
+int TopL;
+int TopR;
+int BotL;
+int BotR;
+ 
+ 
+Servo servox;//Creates variable for controlling x axis
+int x;
+int servoxMax = 160;
+int servoxMin = 20;
+Servo servoy;//Creates variable for controlling y axis
+int y;
+int servoyMax = 160;
+int servoyMin = 20;
+ 
+void setup() {
+    // put your setup code here, to run once:
+  x = servox.read();
+  y = servoy.read();
+  TopL = analogRead(A0);
+  TopR = analogRead(A3);
+  BotL = analogRead(A1);
+  BotR = analogRead(A2);
+  Serial.begin(9600);
+  
+  servox.attach(10);
+  servox.write(0);
+  servoy.attach(9);//Sets up connection of y axis servo
+  servoy.write(0);
+ 
+  
+  if((TopL < 1000 && TopR < 1000 && BotR < 1000 && BotL < 1000)){
+    tone(6, 440, 1000);//Pin to make sound if X is connected
+    delay(1000);
+    tone(6, 659.25, 1000);//Pin to make sound if Y is connected
+    delay(1000);
+    tone(6, 770, 1000);
+    delay(1000);
+    tone(6, 831, 1000);
+    delay(1000);
+    tone(6, 988, 1000);
+    delay(1000);
+    tone(6, 1047, 1000);
+    delay(1000);
+  }
+}
+ 
+void loop() {
+  x = servox.read();
+  y = servoy.read();
+  TopL = analogRead(A0);
+  TopR = analogRead(A3);
+  BotL = analogRead(A1);
+  BotR = analogRead(A2);
+  
+  Serial.println(" ");//Space so it doesn’t look ugly
+  
+  TopL = analogRead(topl); //Assigns the “TopL” to read off of the analog switches. Same thing for the others
+  Serial.print("Top Left =  ");// Aesthetics to be able to read
+  Serial.println(TopL);//Prints the light level read
+  
+  TopR = analogRead(topr);
+  Serial.print("Top Right =  ");
+  Serial.println(TopR);
+  
+  BotL = analogRead(botl);
+  Serial.print("Bot Left =  ");
+  Serial.println(BotL);
+  
+  BotR = analogRead(botr);
+  Serial.print("Bot Right =  ");
+  Serial.println(BotR);
+ 
+  int avgtop = (TopL + TopR) / 2;
+  int avgbot = (BotL + BotR) / 2;
+  int avgleft = (BotL + TopL) / 2;
+  int avgright = (TopR + TopL) / 2;
+ 
+  if (avgtop > avgbot){
+    servoy.write(y -1);
+    y = servoy.read();
+    if (y < servoyMin){
+      y = servoyMin;
+      delay(10);
+    }
+  }else if(avgbot > avgtop){
+    servoy.write(y +1);
+    y = servoy.read();
+    if (y < servoyMax){
+      y = servoyMax;
+    }
+    delay(10);
+  }else{
+    servoy.write(y);
+    }
+  
+  if (avgtop > avgbot){
+    servox.write(x -1);
+    x = servox.read();
+    if (x < servoxMin){
+      x = servoxMin;
+      delay(10);
+    }
+  }else if(avgbot > avgtop){
+    servox.write(x +1);
+    x = servox.read();
+    if (x < servoxMax){
+      x = servoxMax;
+    }
+    delay(10);
+  }else{
+    servox.write(x);
+    }
+  delay(50);
+}
